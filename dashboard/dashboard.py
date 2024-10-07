@@ -13,7 +13,7 @@ st.sidebar.title("Sidebar")
 # Menambahkan gambar sebagai logo kecil di sidebar
 image = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcIpM6ZiRMS4THlMzbSjryU-uCvNhNIo5iMg&s"
 try:
-    st.sidebar.image(image, caption="Logo PM2.5 dan PM10", use_column_width=False, width=500)  # Sesuaikan width untuk mengatur ukuran gambar
+    st.sidebar.image(image, caption="Logo PM2.5 dan PM10", use_column_width=False, width=250)  # Sesuaikan width untuk mengatur ukuran gambar
 except FileNotFoundError:
     st.sidebar.error("Image file not found.")
 
