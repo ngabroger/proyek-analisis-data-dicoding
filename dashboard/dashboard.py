@@ -18,7 +18,7 @@ except FileNotFoundError:
     st.sidebar.error("Image file not found.")
 
 # Membuat layout dengan 2 kolom: sidebar dan konten utama
-col1, col2 = st.columns([1, 3])  # Rasio kolom: 1 untuk sidebar, 3 untuk konten utama
+col1, col2 = st.columns([4, 6])  # Rasio kolom: 1 untuk sidebar, 3 untuk konten utama
 
 # Konten utama (misalnya teks atau gambar lainnya)
 with col2:
