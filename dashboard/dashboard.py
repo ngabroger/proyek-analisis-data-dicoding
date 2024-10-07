@@ -13,12 +13,12 @@ st.sidebar.title("Sidebar")
 # Menambahkan gambar sebagai logo kecil di sidebar
 image = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcIpM6ZiRMS4THlMzbSjryU-uCvNhNIo5iMg&s"
 try:
-    st.sidebar.image(image, caption="Logo PM2.5 dan PM10", use_column_width=False, width=100)  # Sesuaikan width untuk mengatur ukuran gambar
+    st.sidebar.image(image, caption="Logo PM2.5 dan PM10", use_column_width=False, width=500)  # Sesuaikan width untuk mengatur ukuran gambar
 except FileNotFoundError:
     st.sidebar.error("Image file not found.")
 
 # Membuat layout dengan 2 kolom: sidebar dan konten utama
-col1, col2 = st.columns([4, 6])  # Rasio kolom: 1 untuk sidebar, 3 untuk konten utama
+col1, col2 = st.columns([1, 3])  # Rasio kolom: 1 untuk sidebar, 3 untuk konten utama
 
 # Konten utama (misalnya teks atau gambar lainnya)
 with col2:
