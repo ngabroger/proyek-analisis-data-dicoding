@@ -89,7 +89,7 @@ df1 = pd.DataFrame(data1)
 
 # Plot data pertama (PM2.5, PM10, dan variabel cuaca)
 st.subheader("Grafik Hubungan PM2.5, PM10, dan Variabel Cuaca")
-fig, ax = plt.subplots(2, 2, figsize=(14, 7))
+fig, ax = plt.subplots(2, 2, figsize=(14, 10))
 
 # Plot PM2.5 vs TEMP
 ax[0, 0].scatter(df1['TEMP'], df1['PM2.5'], color='blue')
