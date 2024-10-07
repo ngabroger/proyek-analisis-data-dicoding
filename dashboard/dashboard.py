@@ -20,11 +20,6 @@ except FileNotFoundError:
 # Membuat layout dengan 2 kolom: sidebar dan konten utama
 col1, col2 = st.columns([1, 3])  # Rasio kolom: 1 untuk sidebar, 3 untuk konten utama
 
-# Konten utama (misalnya teks atau gambar lainnya)
-with col2:
-    st.write("Konten utama akan ditampilkan di sini")
-
-
 # Data kedua (untuk perubahan PM2.5 dari jam 0 hingga 23)
 data2 = {
     'hour': list(range(24)),
