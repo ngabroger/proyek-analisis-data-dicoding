@@ -1,125 +1,88 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import streamlit as st
 
-# Judul dashboard
-st.title("Dashboard Pengamatan Konsentrasi PM2.5 dan PM10")
+# Set style for seaborn
+sns.set(style='darkgrid')
 
-import streamlit as st
+# Load data
+prsa_shunyi_df = pd.read_csv('C:/Users/ASUS/Downloads/nabila_bila/nabila/data/PRSA_Data_Shunyi_20130301-20170228.csv')
 
-# Menambahkan judul pada sidebar
-st.sidebar.title("Sidebar")
+# Filter data for the year 2016
+prsa_shunyi_df['year'] = prsa_shunyi_df['year'].astype(int)
+data_2016 = prsa_shunyi_df[prsa_shunyi_df['year'] == 2016]
 
-# Menambahkan gambar sebagai logo kecil di sidebar
-image = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcIpM6ZiRMS4THlMzbSjryU-uCvNhNIo5iMg&s"
-try:
-    st.sidebar.image(image, caption="Logo PM2.5 dan PM10", use_column_width=False, width=250)  # Sesuaikan width untuk mengatur ukuran gambar
-except FileNotFoundError:
-    st.sidebar.error("Image file not found.")
+# Monthly average PM2.5
+monthly_data_2016 = data_2016[['month', 'PM2.5']]
+months = ['January', 'February', 'March', 'April', 'May', 'June', 
+          'July', 'August', 'September', 'October', 'November', 'December']
+ordered_monthdf = pd.DataFrame(months, columns=['month'])
 
-# Membuat layout dengan 2 kolom: sidebar dan konten utama
-col1, col2 = st.columns([1, 3])  # Rasio kolom: 1 untuk sidebar, 3 untuk konten utama
+# Mapping month numbers to month names
+map_dict = {i + 1: month for i, month in enumerate(months)}
+monthly_data_2016.loc[:, 'month'] = monthly_data_2016['month'].map(map_dict)
+monthly_average = monthly_data_2016.groupby('month').median()
+monthly_average = pd.merge(ordered_monthdf, monthly_average, left_on='month', right_index=True)
+monthly_average = np.round(monthly_average, 1)
+monthly_average = monthly_average.set_index('month')
 
-# Data kedua (untuk perubahan PM2.5 dari jam 0 hingga 23)
-data2 = {
-    'hour': list(range(24)),
-    'PM2.5': [
-        93.994679, 91.150499, 87.262760, 83.141916, 79.469492,
-        76.089656, 72.451231, 70.648785, 71.177790, 72.382608,
-        74.306758, 74.660721, 74.424473, 73.397832, 72.589171,
-        71.389551, 70.961471, 72.937423, 74.913556, 79.647937,
-        86.262444, 91.742778, 95.092609, 96.414948
-    ]
-}
+# Streamlit dashboard header
+st.title('Dashboard Analisis Kualitas Udara Kota Shunyi')
 
-# Membuat DataFrame kedua
-df2 = pd.DataFrame(data2)
+# Monthly PM2.5 visualization
+st.subheader('Rata-Rata Konsentrasi PM2.5 di Udara Kota Shunyi pada Tahun 2016')
+fig, ax = plt.subplots(figsize=(12, 5))
+with plt.style.context('ggplot'):
+    ax = monthly_average.plot(
+        kind='bar', 
+        color='blue', 
+        legend=False, 
+        linewidth=.9, 
+        edgecolor='black', 
+        ax=ax
+    )
+    ax.set_xlabel('Bulan', fontsize=14)
+    ax.set_ylabel('Konsentrasi PM2.5 (µg/m³)', fontsize=14)
+    ax.set_title('Rata-Rata Konsentrasi PM2.5 di Udara \ndi Kota Shunyi pada Tahun 2016', fontsize=16)
+    ax.grid(axis='x')
+    plt.tight_layout()
 
-# Menghitung persentase perubahan nilai PM2.5 dari jam 0 hingga jam 23
-nilai_awal = df2['PM2.5'].iloc[0]
-nilai_akhir = df2['PM2.5'].iloc[-1]
-persentase_perubahan = ((nilai_akhir - nilai_awal) / nilai_awal) * 100
-
-# Plot data kedua (perubahan PM2.5 dari jam 0 hingga jam 23)
-st.subheader("Perubahan Nilai PM2.5 dari jam 0 hingga jam 23")
-fig2, ax2 = plt.subplots(figsize=(10, 6))
-ax2.plot(df2['hour'], df2['PM2.5'], marker='o', color='b', label='PM2.5')
-ax2.set_title('Perubahan Nilai PM2.5 Dari Jam 0 Hingga Jam 23')
-ax2.set_xlabel('Jam')
-ax2.set_ylabel('Nilai PM2.5')
-ax2.set_xticks(df2['hour'])  # Menampilkan semua jam di sumbu x
-ax2.grid()
-ax2.legend()
-
-# Menampilkan grafik kedua di Streamlit
-st.pyplot(fig2)
-
-# Menampilkan hasil persentase perubahan
-st.write(f"Persentase perubahan nilai PM2.5 dari jam 0 hingga jam 23: {persentase_perubahan:.2f}%")
-
-# Kesimpulan Pertanyaan 2
-st.subheader("Kesimpulan Pertanyaan 1")
-st.write(f"""
-Persentase perubahan nilai PM2.5 dari jam 0 hingga jam 23 adalah {persentase_perubahan:.2f}%. 
-Jika nilai PM2.5 meningkat, ini bisa menunjukkan penurunan kualitas udara. 
-Jika nilainya menurun, ini bisa menunjukkan perbaikan dalam kualitas udara.
-""")
-
-# Data pertama (untuk hubungan PM2.5, PM10, dan variabel cuaca)
-data1 = {
-    'year': [2014, 2016, 2016, 2017, 2015],
-    'month': [2, 8, 1, 1, 11],
-    'day': [7, 7, 15, 18, 14],
-    'hour': [1, 3, 18, 21, 4],
-    'PM2.5': [100.0, 41.0, 100.0, 80.0, 240.0],
-    'PM10': [84.0, 41.0, 121.0, 103.0, 240.0],
-    'TEMP': [-2.1, 25.4, 1.3, -1.325, 7.3],
-    'PRES': [1026.9, 1002.3, 1013.7, 1028.0, 1013.6],
-    'WSPM': [1.8, 3.2, 0.8, 1.2, 1.0],
-    'wd': ['SE', 'NNE', 'SSE', 'SE', 'NNE'],
-}
-
-# Membuat DataFrame pertama
-df1 = pd.DataFrame(data1)
-
-# Plot data pertama (PM2.5, PM10, dan variabel cuaca)
-st.subheader("Grafik Hubungan PM2.5, PM10, dan Variabel Cuaca")
-fig, ax = plt.subplots(2, 2, figsize=(14, 10))
-
-# Plot PM2.5 vs TEMP
-ax[0, 0].scatter(df1['TEMP'], df1['PM2.5'], color='blue')
-ax[0, 0].set_title('PM2.5 vs Suhu')
-ax[0, 0].set_xlabel('Suhu (°C)')
-ax[0, 0].set_ylabel('PM2.5')
-
-# Plot PM10 vs TEMP
-ax[0, 1].scatter(df1['TEMP'], df1['PM10'], color='green')
-ax[0, 1].set_title('PM10 vs Suhu')
-ax[0, 1].set_xlabel('Suhu (°C)')
-ax[0, 1].set_ylabel('PM10')
-
-# Plot PM2.5 vs PRES
-ax[1, 0].scatter(df1['PRES'], df1['PM2.5'], color='red')
-ax[1, 0].set_title('PM2.5 vs Tekanan')
-ax[1, 0].set_xlabel('Tekanan (hPa)')
-ax[1, 0].set_ylabel('PM2.5')
-
-# Plot PM10 vs WSPM (Kecepatan Angin)
-ax[1, 1].scatter(df1['WSPM'], df1['PM10'], color='purple')
-ax[1, 1].set_title('PM10 vs Kecepatan Angin')
-ax[1, 1].set_xlabel('Kecepatan Angin (m/s)')
-ax[1, 1].set_ylabel('PM10')
-
-# Menampilkan grafik pertama di Streamlit
 st.pyplot(fig)
 
-# Kesimpulan Pertanyaan 1
-st.subheader("Kesimpulan Pertanyaan 2")
-st.write(""" 
-Suhu dan Tekanan Udara tampaknya memiliki hubungan dengan konsentrasi polutan (PM2.5 dan PM10). 
-Pada suhu yang lebih rendah dan tekanan yang lebih tinggi, konsentrasi polutan cenderung meningkat. 
-Kecepatan angin tidak menunjukkan pengaruh yang jelas terhadap konsentrasi PM10 dalam data ini. 
-Faktor cuaca seperti suhu dan tekanan mungkin mempengaruhi pengendapan atau penyebaran partikel polutan di udara, 
-yang dapat menyebabkan peningkatan polusi udara pada kondisi cuaca tertentu.
+# Conclusion for question 1
+st.write("""
+**Kesimpulan Pertanyaan 1**: Analisis konsentrasi PM2.5 di Kota Shunyi pada tahun 2016 menunjukkan fluktuasi bulanan yang jelas, dengan nilai rata-rata lebih tinggi pada bulan Januari dan Februari. 
+Peningkatan ini kemungkinan disebabkan oleh faktor-faktor seperti pembakaran bahan bakar selama musim dingin, yang berdampak pada kualitas udara. 
+Temuan ini menggarisbawahi pentingnya memahami pola musiman dalam perencanaan kebijakan kesehatan masyarakat dan pengendalian polusi udara.
 """)
 
+# Hourly average PM2.5
+hourly_data = prsa_shunyi_df[['hour', 'PM2.5']]
+hrs = [f'{str(i).zfill(2)}.00' for i in range(24)]
+hour_dict = {i: j for i, j in enumerate(hrs)}
+
+hourly_data = hourly_data.groupby('hour').median().reset_index()
+hourly_data['hour'] = hourly_data['hour'].map(hour_dict)
+
+# Hourly PM2.5 visualization
+st.subheader('Rata-Rata Konsentrasi PM2.5 per Jam di Kota Shunyi')
+fig, ax = plt.subplots(figsize=(12, 5))
+with plt.style.context('ggplot'):
+    ax = plt.scatter(hourly_data['hour'], hourly_data['PM2.5'], color='blue', s=100)
+    plt.ylabel('Konsentrasi PM2.5 (µg/m³)', fontsize=14)
+    plt.xlabel('Jam', fontsize=14)
+    plt.title('Rata-Rata Konsentrasi PM2.5 di Udara di Kota Shunyi tiap Jam', fontsize=16)
+    plt.xticks(rotation=45)
+    plt.grid(axis='y')
+    plt.tight_layout()
+
+st.pyplot(fig)
+
+# Conclusion for question 2
+st.write("""
+**Kesimpulan Pertanyaan 2**: Analisis konsentrasi PM2.5 per jam di Kota Shunyi menunjukkan bahwa tingkat polusi cenderung meningkat selama jam sibuk, terutama pada pagi dan sore hari, 
+yang dapat dihubungkan dengan aktivitas transportasi dan industri. Sebaliknya, konsentrasi PM2.5 lebih rendah di malam hari ketika aktivitas manusia berkurang. 
+Informasi ini penting untuk merancang strategi mitigasi yang efektif dan meningkatkan kualitas udara.
+""")
