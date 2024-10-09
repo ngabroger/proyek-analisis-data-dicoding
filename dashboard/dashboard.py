@@ -7,8 +7,15 @@ import streamlit as st
 # Set style for seaborn
 sns.set(style='darkgrid')
 
+# Load image for sidebar
+shunyi_image_path = 'dashboard/shunyi.png'  # Ubah ini sesuai dengan lokasi gambar Anda
+st.sidebar.image(shunyi_image_path, caption='Kota Shunyi', use_column_width=True)
+
+st.sidebar.write("Tanggal: 1 Maret 2013 - 28 Februari 2017")
+
 # Load data
-prsa_shunyi_df = pd.read_csv('C:/Users/ASUS/Downloads/nabila_bila/nabila/data/PRSA_Data_Shunyi_20130301-20170228.csv')
+prsa_shunyi_df = pd.read_csv('data/PRSA_Data_Shunyi_20130301-20170228.csv')
+
 
 # Filter data for the year 2016
 prsa_shunyi_df['year'] = prsa_shunyi_df['year'].astype(int)
